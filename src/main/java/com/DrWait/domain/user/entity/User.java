@@ -8,16 +8,19 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "user")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 50)
+    private String username;
 
     // 로그인 식별자
     @Column(name = "user_email",
@@ -30,17 +33,15 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String username;
+    @Column(name = "phone_number", nullable = true)
+    private String phoneNumber;
 
-    // 접근 권한 (ex. ROLE_USER, ROLE_ADMIN)
-    @Column(nullable = false)
-    private String role;
+    @Column(name = "resident_registration_number", nullable = true)
+    private String residentRegistrationNumber;
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createAt;
+    @Column(name = "profile_image_url", nullable = true)
+    private String profileImageUrl;
 
-    @UpdateTimestamp
-    private LocalDateTime updateAt;
+    @Column(nullable = true)
+    private String payment;
 }
