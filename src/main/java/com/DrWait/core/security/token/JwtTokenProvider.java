@@ -1,6 +1,6 @@
-package com.DrWait.global.security.jwt;
+package com.DrWait.core.security.token;
 
-import com.DrWait.global.util.env.EnvLoader;
+import com.DrWait.core.env.EnvLoader;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;

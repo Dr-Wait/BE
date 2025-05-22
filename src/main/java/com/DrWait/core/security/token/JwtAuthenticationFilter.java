@@ -1,4 +1,4 @@
-package com.DrWait.global.security.jwt;
+package com.DrWait.core.security.token;
 
 import com.DrWait.domain.user.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;

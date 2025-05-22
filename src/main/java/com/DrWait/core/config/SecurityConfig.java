@@ -1,10 +1,10 @@
-package com.DrWait.global.config;
+package com.DrWait.core.config;
 
 import com.DrWait.domain.user.service.CustomUserDetailsService;
-import com.DrWait.global.security.jwt.JwtAccessDeniedHandler;
-import com.DrWait.global.security.jwt.JwtAuthenticationEntryPoint;
-import com.DrWait.global.security.jwt.JwtAuthenticationFilter;
-import com.DrWait.global.security.jwt.JwtTokenProvider;
+import com.DrWait.core.security.token.JwtAccessDeniedHandler;
+import com.DrWait.core.security.token.JwtAuthenticationEntryPoint;
+import com.DrWait.core.security.token.JwtAuthenticationFilter;
+import com.DrWait.core.security.token.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

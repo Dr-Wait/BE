@@ -1,4 +1,4 @@
-package com.DrWait.global.util.env;
+package com.DrWait.core.env;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.ApplicationContextInitializer;
