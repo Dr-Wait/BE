@@ -26,6 +26,7 @@ public class JwtTokenProvider {
 
     private final SecretKey secretKey;
     private final long accessTokenValidityInSeconds;
+    private final long refreshTokenValidityInSeconds;
     private static final String BEARER_PREFIX = "Bearar ";
 
 
@@ -33,7 +34,8 @@ public class JwtTokenProvider {
         log.info("[init] JwtTokenProvider에서 SecretKey 초기화 시작");
 
         String secret = EnvLoader.get("JWT_SECRET_KEY");
-        this.accessTokenValidityInSeconds = EnvLoader.getInt("JWT_ACCESS_TOKEN_VALIDITY", 3600);
+        this.accessTokenValidityInSeconds = EnvLoader.getInt("JWT_ACCESS_TOKEN_VALIDITY_IN_SECONDS", 3600);
+        this.refreshTokenValidityInSeconds = EnvLoader.getInt("JWT_REFRESH_TOKEN_VALIDITY_IN_SECONDS", 4000);
 
         byte[] keyBytes = Base64.getEncoder()
                 .encode(secret.getBytes());
@@ -47,21 +49,37 @@ public class JwtTokenProvider {
     public String generateAccessToken(String email, String role){
         log.info("[generateAccessToken] 토큰 생성 시작");
 
-        Claims claims = Jwts.claims();
-        claims.put("role", role); // 토큰을 사용하는 사용자의 권한을 확인용 role 값 별개 추가
-
         Date now = new Date();
         Date expiry = new Date(now.getTime() + accessTokenValidityInSeconds * 1000);
 
         String token = Jwts.builder()
-                .setClaims(claims)
+                .claim("role", role)
                 .setSubject(email) // 이메일를 고유 식별자로 사용
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(secretKey, SignatureAlgorithm.HS256) // 서명 알고리즘
                 .compact();
 
-        log.info("[generateAccessToken] 토큰 생성 완료");
+        log.info("[generateAccessToken] 만료시간: {}", expiry);
+        return token;
+    }
+
+    // ✅ RefreshToken 생성
+    public String generateRefreshToken(String email, String role){
+        log.info("[generateRefreshToken] 토큰 생성 시작");
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + refreshTokenValidityInSeconds * 1000);
+
+        String token = Jwts.builder()
+                .claim("role", role)
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+
+        log.info("[generateRefreshToken] 만료시간: {}", expiry);
         return token;
     }
 
