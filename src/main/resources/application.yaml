@@ -19,4 +19,5 @@ spring:
 
   jwt:
     secret-key: ${JWT_SECRET_KEY}
-    access-token-validity-in-seconds: ${JWT_ACCESS_TOKEN_VALIDITY}
+    access-token-validity-in-seconds: ${JWT_ACCESS_TOKEN_VALIDITY_IN_SECONDS}
+    refresh-token-validity-in-seconds: ${JWT_REFRESH_TOKEN_VALIDITY_IN_SECONDS}
