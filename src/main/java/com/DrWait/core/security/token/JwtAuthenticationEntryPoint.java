@@ -1,4 +1,4 @@
-package com.DrWait.global.security.jwt;
+package com.DrWait.core.security.token;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
