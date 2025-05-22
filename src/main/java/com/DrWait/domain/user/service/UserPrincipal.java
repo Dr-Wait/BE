@@ -1,6 +1,7 @@
 package com.DrWait.domain.user.service;
 
 import com.DrWait.domain.user.entity.User;
+import com.DrWait.domain.user.enums.Role;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,12 +15,12 @@ public class UserPrincipal implements UserDetails {
 
     private final String email;
     private final String password;
-    private final String role;
+    private final Role role;
 
     public UserPrincipal(User user){
         this.email = user.getEmail();
         this.password = user.getPassword();
-        this.role = user.getRole();
+        this.role = Role.USER;
     }
 
     public static UserPrincipal from(User user){
@@ -28,7 +29,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

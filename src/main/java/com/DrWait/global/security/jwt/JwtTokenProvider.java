@@ -1,10 +1,9 @@
 package com.DrWait.global.security.jwt;
 
+import com.DrWait.global.util.env.EnvLoader;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,7 +13,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -23,24 +22,26 @@ import java.util.List;
 /* 🔒 토큰 생성, 검증 */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    private final JwtProperties jwtProperties;
-    private Key secretKey;
+    private final SecretKey secretKey;
+    private final long accessTokenValidityInSeconds;
     private static final String BEARER_PREFIX = "Bearar ";
 
-    @PostConstruct
-    protected void init(){
+
+    public JwtTokenProvider() {
         log.info("[init] JwtTokenProvider에서 SecretKey 초기화 시작");
 
-        // secret key를 base64 형식으로 인코딩해 암호화
+        String secret = EnvLoader.get("JWT_SECRET_KEY");
+        this.accessTokenValidityInSeconds = EnvLoader.getInt("JWT_ACCESS_TOKEN_VALIDITY", 3600);
+
         byte[] keyBytes = Base64.getEncoder()
-                .encode(jwtProperties.getSecretKey().getBytes());
-        secretKey = Keys.hmacShaKeyFor(keyBytes);
+                .encode(secret.getBytes());
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
 
         log.info("[init] JwtTokenProvider에서 SecretKey 초기화 완료");
     }
+
 
     // ✅ AccessToken 생성
     public String generateAccessToken(String email, String role){
@@ -50,7 +51,7 @@ public class JwtTokenProvider {
         claims.put("role", role); // 토큰을 사용하는 사용자의 권한을 확인용 role 값 별개 추가
 
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + jwtProperties.getAccessTokenValidityInSeconds() * 1000);
+        Date expiry = new Date(now.getTime() + accessTokenValidityInSeconds * 1000);
 
         String token = Jwts.builder()
                 .setClaims(claims)
