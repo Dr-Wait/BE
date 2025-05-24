@@ -1,10 +1,9 @@
-package com.DrWait.core.security.auth;
+package com.DrWait.core.security.auth.controller;
 
+import com.DrWait.core.security.auth.dto.HospitalSignupRequestDto;
 import com.DrWait.core.security.auth.dto.LoginRequestDto;
 import com.DrWait.core.security.auth.dto.LoginResponseDto;
-import com.DrWait.core.security.auth.dto.SignupRequestDto;
-import com.DrWait.core.security.token.JwtTokenProvider;
-import com.DrWait.core.security.token.RefreshTokenStore;
+import com.DrWait.core.security.auth.sesrvice.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,18 +15,16 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final RefreshTokenStore refreshTokenStore;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequestDto request){
-        authService.signup(request);
+    public ResponseEntity<?> signup(@RequestBody HospitalSignupRequestDto request){
+        authService.hospitalSignup(request);
         return ResponseEntity.ok("회원가입 성공");
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto request){
-        return ResponseEntity.ok(authService.login(request));
+        return ResponseEntity.ok(authService.hospitalLogin(request));
     }
 
     @PostMapping("/reissue")

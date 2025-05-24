@@ -15,7 +15,7 @@ public class User {
 
     @Id
     @GeneratedValue
-    @Column(columnDefinition = "BINARY(16")
+    @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Column(nullable = false, length = 50)
