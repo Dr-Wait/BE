@@ -11,15 +11,15 @@ public class RefreshTokenStore {
 
     private final Map<String , String> store = new ConcurrentHashMap<>();
 
-    public void save(String email, String refreshToken){
-        store.put(email, refreshToken);
+    public void save(String userId, String refreshToken){
+        store.put(userId, refreshToken);
     }
 
-    public String get(String email){
-        return store.get(email);
+    public String get(String userId){
+        return store.get(userId);
     }
 
-    public void remove(String email){
-        store.remove(email);
+    public void remove(String userId){
+        store.remove(userId);
     }
 }

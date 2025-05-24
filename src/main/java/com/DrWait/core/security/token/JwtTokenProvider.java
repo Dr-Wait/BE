@@ -46,15 +46,17 @@ public class JwtTokenProvider {
 
 
     // ✅ AccessToken 생성
-    public String generateAccessToken(String email, String role){
+    public String generateAccessToken(String userId, String role){
         log.info("[generateAccessToken] 토큰 생성 시작");
+
+        Claims claims = Jwts.claims().setSubject(userId);
+        claims.put("role", role);
 
         Date now = new Date();
         Date expiry = new Date(now.getTime() + accessTokenValidityInSeconds * 1000);
 
         String token = Jwts.builder()
-                .claim("role", role)
-                .setSubject(email) // 이메일를 고유 식별자로 사용
+                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(secretKey, SignatureAlgorithm.HS256) // 서명 알고리즘
@@ -65,15 +67,17 @@ public class JwtTokenProvider {
     }
 
     // ✅ RefreshToken 생성
-    public String generateRefreshToken(String email, String role){
+    public String generateRefreshToken(String userId, String role){
         log.info("[generateRefreshToken] 토큰 생성 시작");
+
+        Claims claims = Jwts.claims().setSubject(userId);
+        claims.put("role", role);
 
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshTokenValidityInSeconds * 1000);
 
         String token = Jwts.builder()
-                .claim("role", role)
-                .setSubject(email)
+                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -83,8 +87,8 @@ public class JwtTokenProvider {
         return token;
     }
 
-    // ✅ 토큰으로 사용자 email 추출
-    public String getUserEmail(String token){
+    // ✅ 토큰으로 사용자 userId 추출
+    public String getUserId(String token){
         log.info("[getUserEmail] 토큰 인증 이메일 정보 추출");
         return parseClaims(token).getSubject();
     }
@@ -94,13 +98,13 @@ public class JwtTokenProvider {
         log.info("[getAuthentication] 토큰 인증 회원 정보 추출");
 
         Claims claims = parseClaims(token);
-        String email = claims.getSubject();
+        String userId = claims.getSubject();
         String role = claims.get("role", String.class);
 
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
 
         // 여기 User는 Entity ❌ springframework.security.core.userdetails ⭕
-        UserDetails userDetails = new User(email, "", authorities);
+        UserDetails userDetails = new User(userId, "", authorities);
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }

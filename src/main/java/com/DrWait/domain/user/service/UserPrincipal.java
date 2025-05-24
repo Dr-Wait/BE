@@ -2,25 +2,25 @@ package com.DrWait.domain.user.service;
 
 import com.DrWait.domain.user.entity.User;
 import com.DrWait.domain.user.enums.Role;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
-@Getter
 public class UserPrincipal implements UserDetails {
 
-    private final String email;
+    private final UUID userId;
     private final String password;
     private final Role role;
 
     public UserPrincipal(User user){
-        this.email = user.getEmail();
+        this.userId = user.getId();
         this.password = user.getPassword();
         this.role = Role.USER;
+        // 필요 시 List.of(new SimpleGrantedAuthority("ROLE_USER"))로 권한 추가 가능
     }
 
     public static UserPrincipal from(User user){
@@ -34,7 +34,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return userId.toString();
     }
 
     @Override
