@@ -3,6 +3,8 @@ package com.DrWait.domain.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Getter @Setter
 @Builder
@@ -12,13 +14,13 @@ import lombok.*;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    @Column(columnDefinition = "BINARY(16")
+    private UUID id;
 
     @Column(nullable = false, length = 50)
     private String username;
 
-    // 로그인 식별자
     @Column(name = "user_email",
             nullable = false,
             unique = true,

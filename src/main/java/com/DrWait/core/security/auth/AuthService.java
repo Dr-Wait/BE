@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -53,19 +55,19 @@ public class AuthService {
         }
 
         // TODO: Role 를 DB에 저장할지 고민
-        String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail(), Role.USER.name());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail(), Role.USER.name());
+        String accessToken = jwtTokenProvider.generateAccessToken(user.getId().toString(), Role.USER.name());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId().toString(), Role.USER.name());
 
-        refreshTokenStore.save(user.getEmail(), refreshToken);
+        refreshTokenStore.save(user.getId().toString(), refreshToken);
 
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
     public LoginResponseDto reissue(String bearerRefreshToken){
         String refreshToken = bearerRefreshToken.replace("Bearer", "").trim();
-        String email = jwtTokenProvider.getUserEmail(refreshToken);
+        String userId = jwtTokenProvider.getUserId(refreshToken);
 
-        String savedToken = refreshTokenStore.get(email);
+        String savedToken = refreshTokenStore.get(userId);
 
         if(savedToken == null){
             throw new IllegalArgumentException("로그아웃된 사용자입니다.");
@@ -73,18 +75,18 @@ public class AuthService {
         if(!refreshToken.equals(savedToken)){
             throw new IllegalArgumentException("유효하지 않은 refreshToken");
         }
-        refreshTokenStore.remove(email);
+        refreshTokenStore.remove(userId);
 
-        String newAccessToken = jwtTokenProvider.generateAccessToken(email, Role.USER.name());
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(email, Role.USER.name());
-        refreshTokenStore.save(email, newRefreshToken);
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userId, Role.USER.name());
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, Role.USER.name());
+        refreshTokenStore.save(userId, newRefreshToken);
 
         return new LoginResponseDto(newAccessToken, refreshToken);
     }
 
     public void logout(String bearerToken){
         String refreshToken = bearerToken.replace("Bearer", "").trim();
-        String email = jwtTokenProvider.getUserEmail(refreshToken);
-        refreshTokenStore.remove(email);
+        String userId = jwtTokenProvider.getUserId(refreshToken);
+        refreshTokenStore.remove(userId);
     }
 }
