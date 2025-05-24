@@ -1,10 +1,13 @@
-package com.DrWait.core.security.auth;
+package com.DrWait.core.security.auth.sesrvice;
 
+import com.DrWait.core.security.auth.dto.HospitalSignupRequestDto;
 import com.DrWait.core.security.auth.dto.LoginRequestDto;
 import com.DrWait.core.security.auth.dto.LoginResponseDto;
 import com.DrWait.core.security.auth.dto.SignupRequestDto;
 import com.DrWait.core.security.token.JwtTokenProvider;
 import com.DrWait.core.security.token.RefreshTokenStore;
+import com.DrWait.domain.hospital.entity.Hospital;
+import com.DrWait.domain.hospital.repository.HospitalRepository;
 import com.DrWait.domain.user.entity.User;
 import com.DrWait.domain.user.enums.Role;
 import com.DrWait.domain.user.repository.UserRepository;
@@ -13,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,12 +23,13 @@ public class AuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final HospitalRepository hospitalRepository;
     private final RefreshTokenStore refreshTokenStore;
     private final PasswordEncoder passwordEncoder;
 
     public void signup(SignupRequestDto request){
         // 1. 이메일 중복 체크
-        if(userRepository.existsByEmail(request.getEmail())){
+        if(userRepository.existsByEmail(request.getUsername())){
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
@@ -46,8 +48,30 @@ public class AuthService {
         userRepository.save(user);
     }
 
+    public void hospitalSignup(HospitalSignupRequestDto request){
+        // 1. 이메일 중복 체크
+        if(hospitalRepository.existsByUsername(request.getUsername())){
+            throw new IllegalArgumentException("이미 존재하는 계정입니다.");
+        }
+
+        // 2. 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
+        Hospital hospital = Hospital.builder()
+                .name(request.getName())
+                .username(request.getUsername())
+                .password(encodedPassword)
+                .department(request.getDepartment())
+                .address(request.getAddress())
+                .telephone(request.getTelephone())
+                .websiteUrl(request.getWebsite_url())
+                .build();
+
+        hospitalRepository.save(hospital);
+    }
+
     public LoginResponseDto login(LoginRequestDto request){
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.getUsername()) // 개인은 이메일, 병원은 username?
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
@@ -59,6 +83,23 @@ public class AuthService {
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId().toString(), Role.USER.name());
 
         refreshTokenStore.save(user.getId().toString(), refreshToken);
+
+        return new LoginResponseDto(accessToken, refreshToken);
+    }
+
+    public LoginResponseDto hospitalLogin(LoginRequestDto request){
+        Hospital hospital = hospitalRepository.findByUsername(request.getUsername()) // 개인은 이메일, 병원은 username?
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
+
+        if(!passwordEncoder.matches(request.getPassword(), hospital.getPassword())){
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // TODO: Role 를 DB에 저장할지 고민
+        String accessToken = jwtTokenProvider.generateAccessToken(hospital.getId().toString(), Role.USER.name());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(hospital.getId().toString(), Role.USER.name());
+
+        refreshTokenStore.save(hospital.getId().toString(), refreshToken);
 
         return new LoginResponseDto(accessToken, refreshToken);
     }
