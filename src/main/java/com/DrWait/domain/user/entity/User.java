@@ -21,13 +21,6 @@ public class User {
     @Column(nullable = false, length = 50)
     private String username;
 
-    @Column(name = "user_email",
-            nullable = false,
-            unique = true,
-            length = 50
-    )
-    private String email;
-
     @Column(nullable = false)
     private String password;
 

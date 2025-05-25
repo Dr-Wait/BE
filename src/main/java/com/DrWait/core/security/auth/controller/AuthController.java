@@ -1,8 +1,8 @@
 package com.DrWait.core.security.auth.controller;
 
-import com.DrWait.core.security.auth.dto.HospitalSignupRequestDto;
 import com.DrWait.core.security.auth.dto.LoginRequestDto;
 import com.DrWait.core.security.auth.dto.LoginResponseDto;
+import com.DrWait.core.security.auth.dto.SignupRequestDto;
 import com.DrWait.core.security.auth.sesrvice.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +17,14 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody HospitalSignupRequestDto request){
-        authService.hospitalSignup(request);
+    public ResponseEntity<?> signup(@RequestBody SignupRequestDto request){
+        authService.signup(request);
         return ResponseEntity.ok("회원가입 성공");
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto request){
-        return ResponseEntity.ok(authService.hospitalLogin(request));
+        return ResponseEntity.ok(authService.login(request));
     }
 
     @PostMapping("/reissue")
