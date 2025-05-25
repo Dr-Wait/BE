@@ -2,7 +2,6 @@ package com.DrWait.domain.hospital.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.UUID;
 

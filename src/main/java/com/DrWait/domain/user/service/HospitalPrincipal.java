@@ -1,6 +1,6 @@
 package com.DrWait.domain.user.service;
 
-import com.DrWait.domain.user.entity.User;
+import com.DrWait.domain.hospital.entity.Hospital;
 import com.DrWait.domain.user.enums.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,18 +10,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class UserPrincipal implements UserDetails {
+public class HospitalPrincipal implements UserDetails {
 
-    private final UUID userId;
+    private final UUID hospitalId;
     private final String role;
 
-    public UserPrincipal(User user){
-        this.userId = user.getId();
-        this.role = Role.USER.name();
+    public HospitalPrincipal(Hospital hospital) {
+        this.hospitalId = hospital.getId();
+        this.role = Role.ADMIN.name();
     }
 
-    public static UserPrincipal from(User user){
-        return new UserPrincipal(user);
+    public static HospitalPrincipal from(Hospital hospital) {
+        return new HospitalPrincipal(hospital);
     }
 
     @Override
@@ -31,9 +31,8 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userId.toString();
+        return hospitalId.toString(); // 토큰 검증 후 ID를 기준으로 불러올 때 사용
     }
-
 
     // 계정 상태 검사
     @Override
