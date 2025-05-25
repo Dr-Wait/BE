@@ -17,13 +17,11 @@ public class PlaceRecommendationController {
     private final PlaceRecommendationService placeRecommendationService;
 
     @PostMapping
-    public ResponseEntity<List<PlaceRecommendationResultDto>> recommendPlaces(
-            @RequestBody List<PlaceRecommendationDto> placeList,
-            @RequestParam double userLat,
-            @RequestParam double userLng
+    public ResponseEntity<PlaceRecommendationResultDto> recommendPlaces(
+            @RequestParam int waitingTime
     ) {
-        List<PlaceRecommendationResultDto> result =
-                placeRecommendationService.calculateTotalTime(placeList, userLat, userLng);
+        PlaceRecommendationResultDto result =
+                placeRecommendationService.recommendedCategory(waitingTime);
 
         return ResponseEntity.ok(result);
     }
