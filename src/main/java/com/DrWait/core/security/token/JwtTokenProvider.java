@@ -27,7 +27,7 @@ public class JwtTokenProvider {
     private final SecretKey secretKey;
     private final long accessTokenValidityInSeconds;
     private final long refreshTokenValidityInSeconds;
-    private static final String BEARER_PREFIX = "Bearar ";
+    private static final String BEARER_PREFIX = "Bearer ";
 
 
     public JwtTokenProvider() {
