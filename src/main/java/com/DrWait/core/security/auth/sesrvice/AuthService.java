@@ -28,9 +28,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public void signup(SignupRequestDto request){
-        // 1. 이메일 중복 체크
-        if(userRepository.existsByEmail(request.getUsername())){
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        // 1. 사용자 아이디 중복 체크
+        if(userRepository.existsByUsername(request.getUsername())){
+            throw new IllegalArgumentException("이미 존재하는 계정입니다.");
         }
 
         // 2. 비밀번호 암호화
@@ -38,7 +38,6 @@ public class AuthService {
 
         User user = User.builder()
                 .username(request.getUsername())
-                .email(request.getEmail())
                 .password(encodedPassword)
                 .phoneNumber(request.getPhoneNumber())
                 .residentRegistrationNumber(request.getResidentRegistrationNumber())
@@ -49,7 +48,7 @@ public class AuthService {
     }
 
     public void hospitalSignup(HospitalSignupRequestDto request){
-        // 1. 이메일 중복 체크
+        // 1. 사용자 아이디 중복체크
         if(hospitalRepository.existsByUsername(request.getUsername())){
             throw new IllegalArgumentException("이미 존재하는 계정입니다.");
         }
@@ -71,8 +70,8 @@ public class AuthService {
     }
 
     public LoginResponseDto login(LoginRequestDto request){
-        User user = userRepository.findByEmail(request.getUsername()) // 개인은 이메일, 병원은 username?
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 계정입니다."));
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
