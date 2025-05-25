@@ -1,17 +1,15 @@
 package com.DrWait.core.security.token;
 
 import com.DrWait.core.env.EnvLoader;
-import com.DrWait.domain.user.service.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -24,18 +22,15 @@ import java.util.List;
 /* 🔒 토큰 생성, 검증 */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    private SecretKey secretKey;
-    private long accessTokenValidityInSeconds;
-    private long refreshTokenValidityInSeconds;
+    private final SecretKey secretKey;
+    private final long accessTokenValidityInSeconds;
+    private final long refreshTokenValidityInSeconds;
     private static final String BEARER_PREFIX = "Bearer ";
 
-    private final CustomUserDetailsService userDetailsService;
 
-    @PostConstruct
-    public void init() {
+    public JwtTokenProvider() {
         log.info("[init] JwtTokenProvider에서 SecretKey 초기화 시작");
 
         String secret = EnvLoader.get("JWT_SECRET_KEY");
@@ -45,7 +40,6 @@ public class JwtTokenProvider {
         byte[] keyBytes = Base64.getEncoder()
                 .encode(secret.getBytes());
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
-
 
         log.info("[init] JwtTokenProvider에서 SecretKey 초기화 완료");
     }
@@ -107,10 +101,11 @@ public class JwtTokenProvider {
         String userId = claims.getSubject();
         String role = claims.get("role", String.class);
 
-        String compositeKey = role + ":" + userId;
-        UserDetails userDetails = userDetailsService.loadUserByUsername(compositeKey);
-
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+
+        // 여기 User는 Entity ❌ springframework.security.core.userdetails ⭕
+        UserDetails userDetails = new User(userId, "", authorities);
+
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }
 
