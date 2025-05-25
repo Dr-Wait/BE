@@ -95,8 +95,8 @@ public class AuthService {
         }
 
         // TODO: Role 를 DB에 저장할지 고민
-        String accessToken = jwtTokenProvider.generateAccessToken(hospital.getId().toString(), Role.USER.name());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(hospital.getId().toString(), Role.USER.name());
+        String accessToken = jwtTokenProvider.generateAccessToken(hospital.getId().toString(), Role.ADMIN.name());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(hospital.getId().toString(), Role.ADMIN.name());
 
         refreshTokenStore.save(hospital.getId().toString(), refreshToken);
 

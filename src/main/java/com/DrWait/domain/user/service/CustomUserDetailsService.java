@@ -1,5 +1,7 @@
 package com.DrWait.domain.user.service;
 
+import com.DrWait.domain.hospital.entity.Hospital;
+import com.DrWait.domain.hospital.repository.HospitalRepository;
 import com.DrWait.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import com.DrWait.domain.user.repository.UserRepository;
@@ -17,12 +19,28 @@ import java.util.UUID;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final HospitalRepository hospitalRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        User user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new UsernameNotFoundException("해당 유저는 존재하지 않습니다."));
+    public UserDetails loadUserByUsername(String compositeKey) throws UsernameNotFoundException {
+        String[] parts = compositeKey.split(":");
+        String type = parts[0];
+        UUID id = UUID.fromString(parts[1]);
 
-        return UserPrincipal.from(user);
+        switch (type) {
+            case "USER":
+                User user = userRepository.findById(id)
+                        .orElseThrow(() -> new UsernameNotFoundException("유저 없음"));
+                return UserPrincipal.from(user);
+
+            case "ADMIN":
+                Hospital hospital = hospitalRepository.findById(id)
+                        .orElseThrow(() -> new UsernameNotFoundException("병원 없음"));
+                return HospitalPrincipal.from(hospital);
+
+            default:
+                throw new UsernameNotFoundException("알 수 없는 사용자 유형");
+        }
     }
+
 }
