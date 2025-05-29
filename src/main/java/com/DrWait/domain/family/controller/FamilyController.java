@@ -1,0 +1,65 @@
+package com.DrWait.domain.family.controller;
+
+import com.DrWait.domain.family.dto.MemberAddRequest;
+import com.DrWait.domain.family.dto.MemberResponse;
+import com.DrWait.domain.family.service.FamilyMemberService;
+import com.DrWait.domain.user.entity.User;
+import com.DrWait.global.security.auth.service.AuthService;
+import com.DrWait.global.security.token.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+import java.util.UUID;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("api/family")
+public class FamilyController {
+
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
+    private final FamilyMemberService familyMemberService;
+
+    @PostMapping
+    public ResponseEntity<MemberResponse> addMember(
+            @RequestBody @Valid MemberAddRequest req,
+            HttpServletRequest request) {
+        // Validate JWT token
+        String token = jwtTokenProvider.resolveToken(request);
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Extract user from JWT token
+        User owner = authService.getUserByBearerToken(token);
+
+        // Get response from service
+        MemberResponse response = familyMemberService.addMember(owner, req);
+
+        // URI location
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{userId}")
+                .buildAndExpand(response.userId())
+                .toUri();
+
+        // Return response with created status
+        return ResponseEntity.created(location).body(response);
+    }
+
+    @DeleteMapping("/{groupId}/{userId}")
+    public ResponseEntity<Void> deleteMember(
+            @PathVariable("groupId") Long groupId,
+            @PathVariable("userId") UUID userId) {
+
+        // You may validate the userId from the JWT token here if needed ^_^
+        familyMemberService.removeMember(groupId, userId);
+        // Return no content status after successful deletion
+        return ResponseEntity.noContent().build();
+    }
+}

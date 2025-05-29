@@ -21,6 +21,6 @@ public class UserController {
 
     @GetMapping("")
     public ResponseEntity<UserInfoResponseDto> getUserInfo(@AuthenticationPrincipal UserPrincipal user){
-        return ResponseEntity.ok(userService.getUserInfo(user.getUsername()));
+        return ResponseEntity.ok(userService.getUserByUserId(user.getUsername()));
     }
 }

@@ -3,6 +3,9 @@ package com.DrWait.domain.hospital.service;
 import com.DrWait.domain.hospital.dto.HospitalInfoResponseDto;
 import com.DrWait.domain.hospital.entity.Hospital;
 import com.DrWait.domain.hospital.repository.HospitalRepository;
+import com.DrWait.domain.user.entity.User;
+import com.DrWait.global.error.CustomException;
+import com.DrWait.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -15,10 +18,17 @@ public class HospitalService {
 
     private final HospitalRepository hospitalRepository;
 
-    public HospitalInfoResponseDto getHospitalInfo(String hospitalId){
-        Hospital hospital = hospitalRepository.findById(UUID.fromString(hospitalId))
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+    public Hospital getHospitalEntityById(String userId){
+        return hospitalRepository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
 
-        return new HospitalInfoResponseDto(hospital);
+    public Hospital getHospitalEntityByUsername(String username){
+        return hospitalRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    public HospitalInfoResponseDto getHospitalInfo(String hospitalId){
+        return new HospitalInfoResponseDto(getHospitalEntityById(hospitalId));
     }
 }
