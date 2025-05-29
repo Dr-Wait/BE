@@ -1,4 +1,4 @@
-package com.DrWait.domain.family_example.dto;
+package com.DrWait.domain.family.dto;
 
 import java.util.UUID;
 

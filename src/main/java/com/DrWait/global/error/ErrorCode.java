@@ -16,11 +16,11 @@ public enum ErrorCode {
     INVALID_REFRESHTOKEN(HttpStatus.BAD_REQUEST, "ACCOUNT-005", "유효하지않은 토큰입니다."),
 
     // 가족 Group 관련 에러코드
-    FAMILY_GROUP_NOT_FOUND(HttpStatus.CONFLICT, "FAMILY-GROUP-001", "해당 가족 그룹을 찾을 수 없습니다."),
+    FAMILY_GROUP_NOT_FOUND(HttpStatus.NOT_FOUND, "FAMILY-GROUP-001", "해당 가족 그룹을 찾을 수 없습니다."),
 
     // 가족 Member 관련 에러코드
     ALREADY_JOINED_FAMILY(HttpStatus.CONFLICT, "FAMILY-MEMBER-001", "이미 가족 그룹에 가입된 사용자입니다."),
-    FAMILY_MEMBER_NOT_FOUND(HttpStatus.CONFLICT, "FAMILY-MEMBER-002", "해당 사용자가 등록된 그룹을 찾을 수 없습니다.");
+    FAMILY_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "FAMILY-MEMBER-002", "해당 사용자가 등록된 그룹을 찾을 수 없습니다.");
 
 
     private final HttpStatus httpStatus; // HttpStatus

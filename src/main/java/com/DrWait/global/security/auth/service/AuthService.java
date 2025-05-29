@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Slf4j
@@ -31,6 +30,16 @@ public class AuthService {
     private final HospitalRepository hospitalRepository;
     private final RefreshTokenStore refreshTokenStore;
     private final PasswordEncoder passwordEncoder;
+
+    public User getUserByBearerToken(String bearerToken){
+        return userRepository.findById(UUID.fromString(jwtTokenProvider.getUserId(bearerToken)))
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    public Hospital getHospitalByBearerToken(String bearerToken){
+        return hospitalRepository.findById(UUID.fromString(jwtTokenProvider.getUserId(bearerToken)))
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
 
     public void signup(SignupRequestDto request){
         // 1. 사용자 아이디 중복 체크
@@ -108,16 +117,6 @@ public class AuthService {
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
-    public String getUserIdByBearerToken(String bearerToken){
-        String accessToken = bearerToken.replace("Bearer", "").trim();
-        return jwtTokenProvider.getUserId(accessToken);
-    }
-
-    public User getUserByBearerToken(String bearerToken){
-        return userRepository.findById(UUID.fromString(getUserIdByBearerToken(bearerToken)))
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-    }
-
     public LoginResponseDto reissue(String bearerRefreshToken){
         String refreshToken = bearerRefreshToken.replace("Bearer", "").trim();
         String userId = jwtTokenProvider.getUserId(refreshToken);
@@ -140,6 +139,6 @@ public class AuthService {
     }
 
     public void logout(String bearerToken){
-        refreshTokenStore.remove(getUserIdByBearerToken(bearerToken));
+        refreshTokenStore.remove(jwtTokenProvider.getUserId(bearerToken));
     }
 }

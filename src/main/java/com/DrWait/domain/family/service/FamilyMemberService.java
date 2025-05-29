@@ -1,15 +1,16 @@
-package com.DrWait.domain.family_example.service;
+package com.DrWait.domain.family.service;
 
-import com.DrWait.domain.family_example.dto.MemberAddRequest;
-import com.DrWait.domain.family_example.dto.MemberResponse;
-import com.DrWait.domain.family_example.entity.FamilyGroup;
-import com.DrWait.domain.family_example.entity.FamilyMember;
-import com.DrWait.domain.family_example.entity.FamilyMemberId;
-import com.DrWait.domain.family_example.repository.FamilyGroupRepository;
-import com.DrWait.domain.family_example.repository.FamilyMemberRepository;
+import com.DrWait.domain.family.dto.MemberAddRequest;
+import com.DrWait.domain.family.dto.MemberResponse;
+import com.DrWait.domain.family.entity.FamilyGroup;
+import com.DrWait.domain.family.entity.FamilyMember;
+import com.DrWait.domain.family.entity.FamilyMemberId;
+import com.DrWait.domain.family.repository.FamilyGroupRepository;
+import com.DrWait.domain.family.repository.FamilyMemberRepository;
 import com.DrWait.domain.user.entity.User;
 import com.DrWait.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.DrWait.global.error.CustomException;
+import com.DrWait.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,19 +20,16 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class FamilyMemberService {
+
     private final UserRepository userRepository;
     private final FamilyGroupRepository familyGroupRepository;
     private final FamilyMemberRepository familyMemberRepository;
 
     @Transactional
-    public MemberResponse addMember(UUID ownerId, MemberAddRequest req) {
-        // Get owner user from the request
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new EntityNotFoundException("Owner user not found"));
-
+    public MemberResponse addMember(User owner, MemberAddRequest req) {
         // Check if the user exists
         User memberUser = userRepository.findByUsername(req.username())
-                .orElseThrow(() -> new EntityNotFoundException("Member user not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // Check if the family group exists or create a new one
         FamilyGroup familyGroup = familyGroupRepository.findByOwner(owner)
@@ -45,16 +43,17 @@ public class FamilyMemberService {
 
         // Check if the user is already a member of the family group
         if (familyMemberRepository.existsById(primaryKey)) {
-            throw new IllegalStateException("User is already a member of this family group");
+            throw new CustomException(ErrorCode.ALREADY_JOINED_FAMILY);
         }
 
         // Create a new FamilyMember entity
-        FamilyMember familyMember = new FamilyMember();
-        familyMember.setId(primaryKey);
-        familyMember.setFamilyGroup(familyGroup);
-        familyMember.setUser(memberUser);
-        familyMember.setRole(req.role());
-        familyMember.setConfirmed(false);
+        FamilyMember familyMember = FamilyMember.builder()
+                .id(primaryKey)
+                .familyGroup(familyGroup)
+                .user(memberUser)
+                .role(req.role())
+                .isConfirmed(false)
+                .build();
 
         // Save the new FamilyMember entity
         familyGroup.addMember(familyMember);
@@ -74,7 +73,7 @@ public class FamilyMemberService {
 
         // Check if the member exists
         FamilyMember familyMember = familyMemberRepository.findById(primaryKey)
-                .orElseThrow(() -> new EntityNotFoundException("Family member not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
 
         // Remove the member from the family group
         FamilyGroup familyGroup = familyMember.getFamilyGroup();
