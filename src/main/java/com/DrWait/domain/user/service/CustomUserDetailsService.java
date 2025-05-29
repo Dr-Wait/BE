@@ -1,10 +1,7 @@
 package com.DrWait.domain.user.service;
 
-import com.DrWait.domain.hospital.entity.Hospital;
-import com.DrWait.domain.hospital.repository.HospitalRepository;
-import com.DrWait.domain.user.entity.User;
+import com.DrWait.domain.hospital.service.HospitalService;
 import lombok.RequiredArgsConstructor;
-import com.DrWait.domain.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,25 +15,21 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
-    private final HospitalRepository hospitalRepository;
+    private final UserService userService;
+    private final HospitalService hospitalService;
 
     @Override
     public UserDetails loadUserByUsername(String compositeKey) throws UsernameNotFoundException {
         String[] parts = compositeKey.split(":");
         String type = parts[0];
-        UUID id = UUID.fromString(parts[1]);
+        String id = parts[1];
 
         switch (type) {
             case "USER":
-                User user = userRepository.findById(id)
-                        .orElseThrow(() -> new UsernameNotFoundException("유저 없음"));
-                return UserPrincipal.from(user);
+                return UserPrincipal.from(userService.getUserEntityByUserId(id));
 
             case "ADMIN":
-                Hospital hospital = hospitalRepository.findById(id)
-                        .orElseThrow(() -> new UsernameNotFoundException("병원 없음"));
-                return HospitalPrincipal.from(hospital);
+                return HospitalPrincipal.from(hospitalService.getHospitalEntityById(id));
 
             default:
                 throw new UsernameNotFoundException("알 수 없는 사용자 유형");

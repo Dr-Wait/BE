@@ -1,6 +1,6 @@
 package com.DrWait;
 
-import com.DrWait.core.env.EnvLoaderApplicationContextInitializer;
+import com.DrWait.global.env.EnvLoaderApplicationContextInitializer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

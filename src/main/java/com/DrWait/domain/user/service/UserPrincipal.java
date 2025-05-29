@@ -1,7 +1,7 @@
 package com.DrWait.domain.user.service;
 
 import com.DrWait.domain.user.entity.User;
-import com.DrWait.domain.user.enums.Role;
+import com.DrWait.global.security.auth.enums.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
