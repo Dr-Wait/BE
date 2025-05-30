@@ -138,7 +138,7 @@ public class AuthService {
         return new LoginResponseDto(newAccessToken, refreshToken);
     }
 
-    public void logout(String bearerToken){
-        refreshTokenStore.remove(jwtTokenProvider.getUserId(bearerToken));
+    public void logout(String token){
+        refreshTokenStore.remove(jwtTokenProvider.getUserId(token));
     }
 }

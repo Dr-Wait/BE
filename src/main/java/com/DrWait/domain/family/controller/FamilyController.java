@@ -1,9 +1,12 @@
 package com.DrWait.domain.family.controller;
 
 import com.DrWait.domain.family.dto.MemberAddRequest;
+import com.DrWait.domain.family.dto.MemberListResponse;
 import com.DrWait.domain.family.dto.MemberResponse;
+import com.DrWait.domain.family.service.FamilyGroupService;
 import com.DrWait.domain.family.service.FamilyMemberService;
 import com.DrWait.domain.user.entity.User;
+import com.DrWait.domain.user.service.UserPrincipal;
 import com.DrWait.global.security.auth.service.AuthService;
 import com.DrWait.global.security.token.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -25,6 +29,7 @@ public class FamilyController {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthService authService;
     private final FamilyMemberService familyMemberService;
+    private final FamilyGroupService familyGroupService;
 
     @PostMapping
     public ResponseEntity<MemberResponse> addMember(
@@ -61,5 +66,16 @@ public class FamilyController {
         familyMemberService.removeMember(groupId, userId);
         // Return no content status after successful deletion
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<MemberListResponse> getMyFamilyMembers(HttpServletRequest request){
+        String token = jwtTokenProvider.resolveToken(request);
+        if(token == null || !jwtTokenProvider.validateToken(token)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User owner = authService.getUserByBearerToken(token);
+        return ResponseEntity.ok(familyGroupService.getGroupMembersByOwner(owner));
     }
 }

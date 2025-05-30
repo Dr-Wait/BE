@@ -45,7 +45,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/signup").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/hospital/**").permitAll()
+                        .requestMatchers("/api/auth/hospital/signup").permitAll()
+                        .requestMatchers("/api/auth/hospital/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService), UsernamePasswordAuthenticationFilter.class)

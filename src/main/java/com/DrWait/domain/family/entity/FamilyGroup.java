@@ -34,6 +34,11 @@ public class FamilyGroup {
         this.owner = owner;
     }
 
+    public FamilyGroup(User owner, Set<FamilyMember> members) {
+        this.owner = owner;
+        this.members = members;
+    }
+
     public void addMember(FamilyMember member) {
         members.add(member);
         member.setFamilyGroup(this);

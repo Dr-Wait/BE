@@ -1,11 +1,11 @@
 package com.DrWait.domain.family.service;
 
 import com.DrWait.domain.family.dto.MemberAddRequest;
+import com.DrWait.domain.family.dto.MemberListResponse;
 import com.DrWait.domain.family.dto.MemberResponse;
 import com.DrWait.domain.family.entity.FamilyGroup;
 import com.DrWait.domain.family.entity.FamilyMember;
 import com.DrWait.domain.family.entity.FamilyMemberId;
-import com.DrWait.domain.family.repository.FamilyGroupRepository;
 import com.DrWait.domain.family.repository.FamilyMemberRepository;
 import com.DrWait.domain.user.entity.User;
 import com.DrWait.domain.user.repository.UserRepository;
@@ -22,8 +22,8 @@ import java.util.UUID;
 public class FamilyMemberService {
 
     private final UserRepository userRepository;
-    private final FamilyGroupRepository familyGroupRepository;
     private final FamilyMemberRepository familyMemberRepository;
+    private final FamilyGroupService familyGroupService;
 
     @Transactional
     public MemberResponse addMember(User owner, MemberAddRequest req) {
@@ -32,11 +32,7 @@ public class FamilyMemberService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // Check if the family group exists or create a new one
-        FamilyGroup familyGroup = familyGroupRepository.findByOwner(owner)
-                .orElseGet(() ->{
-                    FamilyGroup newFamilyGroup = new FamilyGroup(owner);
-                    return familyGroupRepository.save(newFamilyGroup);
-                });
+        FamilyGroup familyGroup = familyGroupService.getGroupByOwner(owner);
 
         // Create a new FamilyMemberId using the group and user IDs
         FamilyMemberId primaryKey = new FamilyMemberId(familyGroup.getId(), memberUser.getId());
