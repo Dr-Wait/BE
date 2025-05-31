@@ -34,8 +34,7 @@ public class FamilyGroup {
         this.owner = owner;
     }
 
-    public FamilyGroup(User owner, Set<FamilyMember> members) {
-        this.owner = owner;
+    public FamilyGroup(Set<FamilyMember> members) {
         this.members = members;
     }
 
