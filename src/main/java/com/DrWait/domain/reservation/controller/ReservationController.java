@@ -1,6 +1,6 @@
 package com.DrWait.domain.reservation.controller;
 
-import com.DrWait.core.security.token.JwtTokenProvider;
+import com.DrWait.global.security.token.JwtTokenProvider;
 import com.DrWait.domain.reservation.dto.ReservationCancelDto;
 import com.DrWait.domain.reservation.dto.ReservationDto;
 import com.DrWait.domain.reservation.service.ReservationService;
