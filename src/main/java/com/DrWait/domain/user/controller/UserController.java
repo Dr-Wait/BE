@@ -2,7 +2,6 @@ package com.DrWait.domain.user.controller;
 
 import com.DrWait.domain.user.dto.UserInfoResponseDto;
 import com.DrWait.domain.user.entity.User;
-import com.DrWait.domain.user.service.UserPrincipal;
 import com.DrWait.domain.user.service.UserService;
 import com.DrWait.global.security.auth.service.AuthService;
 import com.DrWait.global.security.token.JwtTokenProvider;
@@ -11,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

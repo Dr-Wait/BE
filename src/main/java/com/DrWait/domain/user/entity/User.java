@@ -21,18 +21,21 @@ public class User {
     @Column(nullable = false, length = 50)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 225)
     private String password;
 
-    @Column(name = "phone_number", nullable = true)
+    @Column(nullable = false, length = 20)
+    private String fullname;
+
+    @Column(name = "phone_number", nullable = true, length = 20)
     private String phoneNumber;
 
-    @Column(name = "resident_registration_number", nullable = true)
+    @Column(name = "resident_registration_number", nullable = true, length = 20)
     private String residentRegistrationNumber;
 
-    @Column(name = "profile_image_url", nullable = true)
+    @Column(name = "profile_image_url", nullable = true, length = 225)
     private String profileImageUrl;
 
-    @Column(nullable = true)
+    @Column(nullable = true, length = 225)
     private String payment;
 }
