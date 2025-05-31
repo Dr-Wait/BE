@@ -88,7 +88,7 @@ public class FamilyMemberService {
                 .orElseThrow(() -> new CustomException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
     }
 
-    public Optional<FamilyMember> getGroupMembersByUser(User user){
+    public Optional<FamilyMember> getMembersByUser(User user){
         return familyMemberRepository.findById_UserId(user.getId());
     }
 
