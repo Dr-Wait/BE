@@ -9,6 +9,8 @@ import java.util.UUID;
 public record MemberResponse(
         Long familyGroupId,
         UUID userId,
+        String fullname,
+        String phoneNumber,
         String role,
         boolean isConfirmed
 ) {
@@ -17,6 +19,8 @@ public record MemberResponse(
         return MemberResponse.builder()
                 .familyGroupId(member.getFamilyGroup().getId())
                 .userId(member.getId().getUserId())
+                .fullname(member.getUser().getFullname())
+                .phoneNumber(member.getUser().getPhoneNumber())
                 .role(member.getRole())
                 .isConfirmed(member.isConfirmed())
                 .build();
