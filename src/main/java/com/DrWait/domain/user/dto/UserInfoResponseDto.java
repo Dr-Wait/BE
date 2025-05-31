@@ -10,11 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserInfoResponseDto {
     private String username;
+    private String fullname;
     private String phoneNumber;
     private String profileImageUrl;
 
     public UserInfoResponseDto(User user){
         this.username = user.getUsername();
+        this.fullname = user.getFullname();
         this.phoneNumber = user.getPhoneNumber();
         this.profileImageUrl = user.getProfileImageUrl();
     }

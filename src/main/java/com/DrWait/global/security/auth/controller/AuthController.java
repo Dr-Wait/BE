@@ -1,5 +1,7 @@
 package com.DrWait.global.security.auth.controller;
 
+import com.DrWait.global.error.CustomException;
+import com.DrWait.global.error.ErrorCode;
 import com.DrWait.global.security.auth.dto.LoginRequestDto;
 import com.DrWait.global.security.auth.dto.LoginResponseDto;
 import com.DrWait.global.security.auth.dto.SignupRequestDto;
@@ -25,6 +27,12 @@ public class AuthController {
     public ResponseEntity<?> signup(@RequestBody SignupRequestDto request){
         authService.signup(request);
         return ResponseEntity.ok("회원가입 성공");
+    }
+
+    @GetMapping("/signup/{username}")
+    public ResponseEntity<?> isExistedUsername(@PathVariable("username") String username){
+        if(authService.isExistUsername(username)) throw new CustomException(ErrorCode.ALREADY_EXISTED_USERNAME);
+        return ResponseEntity.ok("사용 가능한 아이디입니다.");
     }
 
     @PostMapping("/login")

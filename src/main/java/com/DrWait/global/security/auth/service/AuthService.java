@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -53,6 +54,7 @@ public class AuthService {
         User user = User.builder()
                 .username(request.getUsername())
                 .password(encodedPassword)
+                .fullname(request.getFullname())
                 .phoneNumber(request.getPhoneNumber())
                 .residentRegistrationNumber(request.getResidentRegistrationNumber())
 //                .profileImageUrl("기본 이미지 URL")
@@ -101,7 +103,7 @@ public class AuthService {
     }
 
     public LoginResponseDto hospitalLogin(LoginRequestDto request){
-        Hospital hospital = hospitalRepository.findByUsername(request.getUsername()) // 개인은 이메일, 병원은 username?
+        Hospital hospital = hospitalRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if(!passwordEncoder.matches(request.getPassword(), hospital.getPassword())){
@@ -115,6 +117,18 @@ public class AuthService {
         refreshTokenStore.save(hospital.getId().toString(), refreshToken);
 
         return new LoginResponseDto(accessToken, refreshToken);
+    }
+
+    public boolean isExistUsername (String username){
+         Optional<User> user = userRepository.findByUsername(username);
+
+        return user.isPresent();
+    }
+
+    public boolean isExistHospitalUsername (String username){
+        Optional<Hospital> hospital = hospitalRepository.findByUsername(username);
+
+        return hospital.isPresent();
     }
 
     public LoginResponseDto reissue(String bearerRefreshToken){
