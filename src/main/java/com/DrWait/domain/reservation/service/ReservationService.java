@@ -44,6 +44,8 @@ public class ReservationService {
 
         return new ReservationResultDto(waitingOrder, waitingTime);
     }
+
+
     public void cancelReservation(Long reservationId) {
         reservationRepository.deleteById(reservationId);
     }
