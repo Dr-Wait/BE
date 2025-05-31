@@ -29,7 +29,7 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
-    public UserInfoResponseDto getUserByUserId(String userId){
-        return new UserInfoResponseDto(getUserEntityByUserId(userId));
+    public UserInfoResponseDto getUserByUserId(User user){
+        return new UserInfoResponseDto(getUserEntityByUserId(user.getId().toString()));
     }
 }

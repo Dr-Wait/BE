@@ -28,7 +28,7 @@ public class HospitalService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
-    public HospitalInfoResponseDto getHospitalInfo(String hospitalId){
-        return new HospitalInfoResponseDto(getHospitalEntityById(hospitalId));
+    public HospitalInfoResponseDto getHospitalInfo(Hospital hospital){
+        return new HospitalInfoResponseDto(getHospitalEntityById(hospital.getId().toString()));
     }
 }
