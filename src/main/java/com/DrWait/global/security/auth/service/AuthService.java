@@ -94,8 +94,8 @@ public class AuthService {
         }
 
         // TODO: Role 를 DB에 저장할지 고민
-        String accessToken = jwtTokenProvider.generateAccessToken(user.getId().toString(), Role.USER.name());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId().toString(), Role.USER.name());
+        String accessToken = jwtTokenProvider.generateAccessToken(user.getId().toString(), Role.USER.name(),user.getId().toString());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId().toString(), Role.USER.name(),user.getId().toString());
 
         refreshTokenStore.save(user.getId().toString(), refreshToken);
 
@@ -111,8 +111,8 @@ public class AuthService {
         }
 
         // TODO: Role 를 DB에 저장할지 고민
-        String accessToken = jwtTokenProvider.generateAccessToken(hospital.getId().toString(), Role.ADMIN.name());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(hospital.getId().toString(), Role.ADMIN.name());
+        String accessToken = jwtTokenProvider.generateAccessToken(hospital.getId().toString(), Role.ADMIN.name(), hospital.getId().toString());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(hospital.getId().toString(), Role.ADMIN.name(),hospital.getId().toString());
 
         refreshTokenStore.save(hospital.getId().toString(), refreshToken);
 
@@ -145,8 +145,8 @@ public class AuthService {
         }
         refreshTokenStore.remove(userId);
 
-        String newAccessToken = jwtTokenProvider.generateAccessToken(userId, Role.USER.name());
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, Role.USER.name());
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userId, Role.USER.name(), userId);
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, Role.USER.name(), userId);
         refreshTokenStore.save(userId, newRefreshToken);
 
         return new LoginResponseDto(newAccessToken, refreshToken);

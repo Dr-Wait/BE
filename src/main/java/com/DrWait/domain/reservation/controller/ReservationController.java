@@ -1,14 +1,19 @@
 package com.DrWait.domain.reservation.controller;
 
+import com.DrWait.domain.reservation.dto.MyReservationDto;
+import com.DrWait.domain.reservation.dto.ReservationResultDto;
+import com.DrWait.domain.reservation.entity.ReservationEntity;
 import com.DrWait.global.security.token.JwtTokenProvider;
 import com.DrWait.domain.reservation.dto.ReservationCancelDto;
 import com.DrWait.domain.reservation.dto.ReservationDto;
 import com.DrWait.domain.reservation.service.ReservationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -20,18 +25,22 @@ public class ReservationController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping
-    public ResponseEntity<String> makeReservation(
+    public ResponseEntity<ReservationResultDto> makeReservation(
             @RequestBody ReservationDto dto,
             HttpServletRequest request
     ) {
-        // 토큰 userId 추출
         String token = jwtTokenProvider.resolveToken(request);
-        String userIdStr = jwtTokenProvider.getUserId(token);
+        String userIdStr = jwtTokenProvider.getUUID(token);
+
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         UUID userId = UUID.fromString(userIdStr);
 
-        reservationService.makeReservation(dto, userId);
+        ReservationResultDto result = reservationService.makeReservation(dto, userId);
 
-        return ResponseEntity.ok("예약 완료!");
+        return ResponseEntity.ok(result);  // 여기서 waitingOrder, waitingTime 내려감!
     }
 
     @PostMapping("/reservation_cancel")
@@ -40,11 +49,27 @@ public class ReservationController {
             HttpServletRequest request
     ) {
         String token = jwtTokenProvider.resolveToken(request);
-        String userIdStr = jwtTokenProvider.getUserId(token);
+        String userIdStr = jwtTokenProvider.getUUID(token);
         UUID userId = UUID.fromString(userIdStr);
 
         reservationService.cancelReservation(cancelDto.getReservationId());
 
         return ResponseEntity.ok("예약 취소 완료!");
     }
+
+    @GetMapping("/my_reservation")
+    public ResponseEntity<List<MyReservationDto>> getMyReservations(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveToken(request);
+        String userIdStr = jwtTokenProvider.getUUID(token);
+
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        UUID userId = UUID.fromString(userIdStr);
+
+        List<MyReservationDto> reservationDetails = reservationService.getUserReservationDetails(userId);
+        return ResponseEntity.ok(reservationDetails);
+    }
+
 }

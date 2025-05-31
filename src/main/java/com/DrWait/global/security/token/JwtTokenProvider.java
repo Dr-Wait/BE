@@ -48,11 +48,12 @@ public class JwtTokenProvider {
 
 
     // ✅ AccessToken 생성
-    public String generateAccessToken(String userId, String role){
+    public String generateAccessToken(String userId, String role, String userUuid){
         log.info("[generateAccessToken] 토큰 생성 시작");
 
         Claims claims = Jwts.claims().setSubject(userId);
         claims.put("role", role);
+        claims.put("uuid", userUuid);
 
         Date now = new Date();
         Date expiry = new Date(now.getTime() + accessTokenValidityInSeconds * 1000);
@@ -69,11 +70,12 @@ public class JwtTokenProvider {
     }
 
     // ✅ RefreshToken 생성
-    public String generateRefreshToken(String userId, String role){
+    public String generateRefreshToken(String userId, String role, String userUuid){
         log.info("[generateRefreshToken] 토큰 생성 시작");
 
         Claims claims = Jwts.claims().setSubject(userId);
         claims.put("role", role);
+        claims.put("uuid", userUuid);
 
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshTokenValidityInSeconds * 1000);
@@ -93,6 +95,10 @@ public class JwtTokenProvider {
     public String getUserId(String token){
         log.info("[getUserEmail] 토큰 인증 이메일 정보 추출");
         return parseClaims(token).getSubject();
+    }
+
+    public String getUUID(String token){
+        return parseClaims(token).get("uuid", String.class);
     }
 
     // ✅ 토큰으로 Authentication 객체를 생성해 반환
