@@ -61,6 +61,8 @@ public class FamilyMemberService {
         return new MemberResponse(
                 familyMember.getId().getFamilyGroupId(),
                 familyMember.getId().getUserId(),
+                familyMember.getUser().getFullname(),
+                familyMember.getUser().getPhoneNumber(),
                 familyMember.getRole(),
                 familyMember.isConfirmed()
         );
