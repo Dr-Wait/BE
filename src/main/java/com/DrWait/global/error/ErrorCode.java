@@ -20,7 +20,8 @@ public enum ErrorCode {
 
     // 가족 Member 관련 에러코드
     ALREADY_JOINED_FAMILY(HttpStatus.CONFLICT, "FAMILY-MEMBER-001", "이미 가족 그룹에 가입된 사용자입니다."),
-    FAMILY_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "FAMILY-MEMBER-002", "해당 사용자가 등록된 그룹을 찾을 수 없습니다.");
+    FAMILY_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "FAMILY-MEMBER-002", "해당 사용자가 등록된 그룹을 찾을 수 없습니다."),
+    NOT_YET_CONFIRM(HttpStatus.NOT_FOUND, "FAMILY-MEMBER-003", "가족 그룹 초대를 승락해주세요.");
 
 
     private final HttpStatus httpStatus; // HttpStatus

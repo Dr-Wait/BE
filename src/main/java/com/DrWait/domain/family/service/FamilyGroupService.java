@@ -5,6 +5,8 @@ import com.DrWait.domain.family.entity.FamilyGroup;
 import com.DrWait.domain.family.entity.FamilyMember;
 import com.DrWait.domain.family.repository.FamilyGroupRepository;
 import com.DrWait.domain.user.entity.User;
+import com.DrWait.global.error.CustomException;
+import com.DrWait.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +27,9 @@ public class FamilyGroupService {
                 });
     }
 
-    public MemberListResponse getGroupMembersByOwner(User owner){
-        FamilyGroup familyGroup = familyGroupRepository.findByOwner(owner)
-                .orElseGet(() -> {
-                    // not save DB, just send empty value
-                    Set<FamilyMember> members = new HashSet<>();
-                    return new FamilyGroup(owner, members);
-                });
+    public MemberListResponse getGroupMembersByGroupId(Long groupId){
+        FamilyGroup familyGroup = familyGroupRepository.findById(groupId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FAMILY_GROUP_NOT_FOUND));
 
         return new MemberListResponse(familyGroup.getMembers());
     }

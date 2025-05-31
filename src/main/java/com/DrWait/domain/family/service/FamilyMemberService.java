@@ -15,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -65,11 +68,7 @@ public class FamilyMemberService {
 
     @Transactional
     public void removeMember(Long groupId, UUID userId) {
-        FamilyMemberId primaryKey = new FamilyMemberId(groupId, userId);
-
-        // Check if the member exists
-        FamilyMember familyMember = familyMemberRepository.findById(primaryKey)
-                .orElseThrow(() -> new CustomException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+        FamilyMember familyMember = getMemberByPrimaryKey(groupId, userId);
 
         // Remove the member from the family group
         FamilyGroup familyGroup = familyMember.getFamilyGroup();
@@ -77,5 +76,28 @@ public class FamilyMemberService {
 
         // DB delete
         familyMemberRepository.delete(familyMember);
+    }
+
+    public FamilyMember getMemberByPrimaryKey(Long groupId, UUID userId){
+        FamilyMemberId primaryKey = new FamilyMemberId(groupId, userId);
+
+        // Check if the member exists
+        return familyMemberRepository.findById(primaryKey)
+                .orElseThrow(() -> new CustomException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+    }
+
+    public Optional<FamilyMember> getGroupMembersByUser(User user){
+        return familyMemberRepository.findById_UserId(user.getId());
+    }
+
+    @Transactional
+    public void confirmedMember(Long groupId, User user){
+        FamilyMember familyMember = getMemberByPrimaryKey(groupId, user.getId());
+
+        // Check if already joined group
+        if(familyMember.isConfirmed()) throw new CustomException(ErrorCode.ALREADY_JOINED_FAMILY);
+
+        familyMember.setConfirmed(true);
+        familyMemberRepository.save(familyMember);
     }
 }

@@ -3,10 +3,13 @@ package com.DrWait.domain.family.controller;
 import com.DrWait.domain.family.dto.MemberAddRequest;
 import com.DrWait.domain.family.dto.MemberListResponse;
 import com.DrWait.domain.family.dto.MemberResponse;
+import com.DrWait.domain.family.entity.FamilyGroup;
+import com.DrWait.domain.family.entity.FamilyMember;
 import com.DrWait.domain.family.service.FamilyGroupService;
 import com.DrWait.domain.family.service.FamilyMemberService;
 import com.DrWait.domain.user.entity.User;
-import com.DrWait.domain.user.service.UserPrincipal;
+import com.DrWait.global.error.CustomException;
+import com.DrWait.global.error.ErrorCode;
 import com.DrWait.global.security.auth.service.AuthService;
 import com.DrWait.global.security.token.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,11 +17,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -75,7 +79,26 @@ public class FamilyController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        User owner = authService.getUserByBearerToken(token);
-        return ResponseEntity.ok(familyGroupService.getGroupMembersByOwner(owner));
+        User user = authService.getUserByBearerToken(token);
+        Optional<FamilyMember> familyMember = familyMemberService.getGroupMembersByUser(user);
+
+        // if not join any group, don't save DB, just send empty value
+        if(familyMember.isEmpty()) return ResponseEntity.ok(new MemberListResponse(new HashSet<FamilyMember>()));
+
+        if(!familyMember.get().isConfirmed()) throw new CustomException(ErrorCode.NOT_YET_CONFIRM);
+
+        return ResponseEntity.ok(familyGroupService.getGroupMembersByGroupId(familyMember.get().getFamilyGroup().getId()));
+    }
+
+    @PostMapping("/{groupId}")
+    public ResponseEntity<?> confirmFamilyMember(@PathVariable("groupId") Long groupId, HttpServletRequest request){
+        String token = jwtTokenProvider.resolveToken(request);
+        if(token == null || !jwtTokenProvider.validateToken(token)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user = authService.getUserByBearerToken(token);
+        familyMemberService.confirmedMember(groupId, user);
+        return ResponseEntity.ok("가족 그룹에 등록되었습니다.");
     }
 }
