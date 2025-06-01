@@ -3,6 +3,10 @@ package com.DrWait.domain.reservation.controller;
 import com.DrWait.domain.reservation.dto.MyReservationDto;
 import com.DrWait.domain.reservation.dto.ReservationResultDto;
 import com.DrWait.domain.reservation.entity.ReservationEntity;
+import com.DrWait.domain.family.entity.FamilyGroup;
+import com.DrWait.domain.family.entity.FamilyMember;
+import com.DrWait.domain.family.service.FamilyGroupService;
+import com.DrWait.domain.family.service.FamilyMemberService;
 import com.DrWait.domain.user.entity.User;
 import com.DrWait.global.security.auth.service.AuthService;
 import com.DrWait.global.security.token.JwtTokenProvider;
@@ -23,9 +27,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReservationController {
 
+    private final AuthService authService;
     private final ReservationService reservationService;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthService authService;
+    private final FamilyGroupService familyGroupService;
+    private final FamilyMemberService familyMemberService;
 
     @PostMapping
     public ResponseEntity<ReservationResultDto> makeReservation(
@@ -51,6 +58,28 @@ public class ReservationController {
         ReservationResultDto result = reservationService.makeReservation(dto, user.getId());
 
         return ResponseEntity.ok(result);  // 여기서 waitingOrder, waitingTime 내려감!
+    }
+
+    @PostMapping("/{userId}")
+    public ResponseEntity<String> makeFamilyMemberReservation(
+            @PathVariable("userId") String userId,
+            @RequestBody ReservationDto dto,
+            HttpServletRequest request
+    ) {
+        String token = jwtTokenProvider.resolveToken(request);
+        if(token == null || !jwtTokenProvider.validateToken(token)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user = authService.getUserByBearerToken(token);
+        // check my family group (if it existed, my authority is owner)
+        FamilyGroup familyGroup = familyGroupService.getGroupByOwner(user);
+        // check that user exist in my group
+        FamilyMember familyMember = familyMemberService.getMemberByPrimaryKey(familyGroup.getId(), UUID.fromString(userId));
+
+        reservationService.makeReservation(dto, familyMember.getId().getUserId());
+
+        return ResponseEntity.ok("예약 완료!");
     }
 
     @PostMapping("/reservation_cancel")

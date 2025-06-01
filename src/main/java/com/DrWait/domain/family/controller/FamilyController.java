@@ -80,7 +80,7 @@ public class FamilyController {
         }
 
         User user = authService.getUserByBearerToken(token);
-        Optional<FamilyMember> familyMember = familyMemberService.getGroupMembersByUser(user);
+        Optional<FamilyMember> familyMember = familyMemberService.getMembersByUser(user);
 
         // if not join any group, don't save DB, just send empty value
         if(familyMember.isEmpty()) return ResponseEntity.ok(new MemberListResponse(new HashSet<FamilyMember>()));
