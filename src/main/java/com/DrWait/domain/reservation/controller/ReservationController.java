@@ -30,7 +30,6 @@ public class ReservationController {
     private final AuthService authService;
     private final ReservationService reservationService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AuthService authService;
     private final FamilyGroupService familyGroupService;
     private final FamilyMemberService familyMemberService;
 
@@ -98,16 +97,15 @@ public class ReservationController {
 
     @GetMapping("/my_reservation")
     public ResponseEntity<List<MyReservationDto>> getMyReservations(HttpServletRequest request) {
-        String token = jwtTokenProvider.resolveToken(request);
-        String userIdStr = jwtTokenProvider.getUUID(token);
 
-        if (token == null || !jwtTokenProvider.validateToken(token)) {
+        String token = jwtTokenProvider.resolveToken(request);
+        if(token == null || !jwtTokenProvider.validateToken(token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        UUID userId = UUID.fromString(userIdStr);
+        User user = authService.getUserByBearerToken(token);
 
-        List<MyReservationDto> reservationDetails = reservationService.getUserReservationDetails(userId);
+        List<MyReservationDto> reservationDetails = reservationService.getUserReservationDetails(user.getId());
         return ResponseEntity.ok(reservationDetails);
     }
 
