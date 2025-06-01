@@ -21,9 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -82,13 +81,19 @@ public class FamilyController {
         User user = authService.getUserByBearerToken(token);
         Optional<FamilyMember> familyMember = familyMemberService.getMembersByUser(user);
 
-        // if not join any group, don't save DB, just send empty value
         if(familyMember.isEmpty()) throw new CustomException(ErrorCode.FAMILY_GROUP_NOT_FOUND);
 
         if(!familyMember.get().isConfirmed()) {
-            HashSet<FamilyMember> justMine = new HashSet<>();
-            justMine.add(familyMember.get());
-            return ResponseEntity.ok(new MemberListResponse(justMine));
+            FamilyGroup familyGroup = familyGroupService.getGroupByGroupId(familyMember.get().getFamilyGroup().getId());
+
+            Set<FamilyMember> filteredMembers = familyGroup.getMembers().stream()
+                    .filter(member ->
+                            Objects.equals(member.getId().getUserId(), familyGroup.getOwner().getId()) ||
+                                    Objects.equals(member.getId().getUserId(), user.getId()))
+                    .collect(Collectors.toSet());
+
+            return ResponseEntity.ok(new MemberListResponse(filteredMembers));
+
         }
 
         return ResponseEntity.ok(familyGroupService.getGroupMembersByGroupId(familyMember.get().getFamilyGroup().getId()));
