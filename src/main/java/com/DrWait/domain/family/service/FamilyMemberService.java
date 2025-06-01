@@ -93,8 +93,9 @@ public class FamilyMemberService {
     }
 
     @Transactional
-    public void confirmedMember(Long groupId, User user){
-        FamilyMember familyMember = getMemberByPrimaryKey(groupId, user.getId());
+    public void confirmedMember(User user){
+        FamilyMember familyMember = getMembersByUser(user)
+                .orElseThrow(() -> new CustomException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
 
         // Check if already joined group
         if(familyMember.isConfirmed()) throw new CustomException(ErrorCode.ALREADY_JOINED_FAMILY);

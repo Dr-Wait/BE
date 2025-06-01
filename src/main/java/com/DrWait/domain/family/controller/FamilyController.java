@@ -90,15 +90,15 @@ public class FamilyController {
         return ResponseEntity.ok(familyGroupService.getGroupMembersByGroupId(familyMember.get().getFamilyGroup().getId()));
     }
 
-    @PostMapping("/{groupId}")
-    public ResponseEntity<?> confirmFamilyMember(@PathVariable("groupId") Long groupId, HttpServletRequest request){
+    @PostMapping("/confirm")
+    public ResponseEntity<?> confirmFamilyMember(HttpServletRequest request){
         String token = jwtTokenProvider.resolveToken(request);
         if(token == null || !jwtTokenProvider.validateToken(token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         User user = authService.getUserByBearerToken(token);
-        familyMemberService.confirmedMember(groupId, user);
+        familyMemberService.confirmedMember(user);
         return ResponseEntity.ok("가족 그룹에 등록되었습니다.");
     }
 }
