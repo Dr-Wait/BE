@@ -1,18 +1,17 @@
 package com.DrWait.domain.reservation.controller;
 
-import com.DrWait.domain.reservation.dto.MyReservationDto;
-import com.DrWait.domain.reservation.dto.ReservationResultDto;
-import com.DrWait.domain.reservation.entity.ReservationEntity;
 import com.DrWait.domain.family.entity.FamilyGroup;
 import com.DrWait.domain.family.entity.FamilyMember;
 import com.DrWait.domain.family.service.FamilyGroupService;
 import com.DrWait.domain.family.service.FamilyMemberService;
+import com.DrWait.domain.reservation.dto.MyReservationDto;
+import com.DrWait.domain.reservation.dto.ReservationCancelDto;
+import com.DrWait.domain.reservation.dto.ReservationDto;
+import com.DrWait.domain.reservation.dto.ReservationResultDto;
+import com.DrWait.domain.reservation.service.ReservationService;
 import com.DrWait.domain.user.entity.User;
 import com.DrWait.global.security.auth.service.AuthService;
 import com.DrWait.global.security.token.JwtTokenProvider;
-import com.DrWait.domain.reservation.dto.ReservationCancelDto;
-import com.DrWait.domain.reservation.dto.ReservationDto;
-import com.DrWait.domain.reservation.service.ReservationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -66,7 +65,7 @@ public class ReservationController {
             HttpServletRequest request
     ) {
         String token = jwtTokenProvider.resolveToken(request);
-        if(token == null || !jwtTokenProvider.validateToken(token)){
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
