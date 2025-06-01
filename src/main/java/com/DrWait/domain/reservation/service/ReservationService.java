@@ -31,7 +31,7 @@ public class ReservationService {
         entity.setRole(dto.getRole());
         entity.setSymptomId(dto.getSymptomId());
         entity.setFirstVisit(dto.isFirstVisit());
-        entity.setConfirmed(false);   // 처음 생성 시 false
+        entity.setConfirmed(false);
         entity.setCompleted(false);   // 처음 생성 시 false
         entity.setMessage(dto.getMessage());
         entity.setReservationTime(LocalDateTime.now());

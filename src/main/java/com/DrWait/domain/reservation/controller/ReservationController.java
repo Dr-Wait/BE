@@ -37,15 +37,6 @@ public class ReservationController {
             @RequestBody ReservationDto dto,
             HttpServletRequest request
     ) {
-//        String token = jwtTokenProvider.resolveToken(request);
-//        String userIdStr = jwtTokenProvider.getUUID(token);
-//
-//        if (token == null || !jwtTokenProvider.validateToken(token)) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-//
-//        UUID userId = UUID.fromString(userIdStr);
-
         String token = jwtTokenProvider.resolveToken(request);
         if (token == null || !jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -85,10 +76,6 @@ public class ReservationController {
             @RequestBody ReservationCancelDto cancelDto,
             HttpServletRequest request
     ) {
-        String token = jwtTokenProvider.resolveToken(request);
-        String userIdStr = jwtTokenProvider.getUUID(token);
-        UUID userId = UUID.fromString(userIdStr);
-
         reservationService.cancelReservation(cancelDto.getReservationId());
 
         return ResponseEntity.ok("예약 취소 완료!");
