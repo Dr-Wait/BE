@@ -10,11 +10,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SymptomRepository extends JpaRepository<SymptomEntity, Long> {
 
-  @Query("SELECT s.name FROM SymptomEntity s")
-  List<String> findAllSymptomNames();
+  @Query("SELECT s FROM SymptomEntity s")
+  List<SymptomEntity> findAllSymptomNames();
 
   List<SymptomEntity> findAllByName(String name); // 여기 변경!
 
-  @Query("SELECT s.name FROM SymptomEntity s WHERE s.department = :department")
-  List<String> findNamesByDepartment(@Param("department") String department);
+  @Query("SELECT s FROM SymptomEntity s WHERE s.department = :department")
+  List<SymptomEntity> findSymptomsByDepartment(@Param("department") String department);
 }
