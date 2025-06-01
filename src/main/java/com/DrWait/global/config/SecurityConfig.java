@@ -24,15 +24,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @EnableConfigurationProperties // JwtProperties 등록을 위해 필요
 @EnableWebSecurity // 스프링 시큐리티의 기본 설정을 비활성화하고, 사용자 정의 보안 설정을 활성화
-@EnableMethodSecurity(prePostEnabled = true) // @PreAuthorize, @PostAuthorize 같은 메서드 수준 보안 어노테이션을 활성화
-                                                // → 컨트롤러, 서비스 등의 메서드에 @PreAuthorize("hasRole('ROLE_ADMIN')") 같은 권한 체크를 사용하려면 필요
+@EnableMethodSecurity(prePostEnabled = true)
+// @PreAuthorize, @PostAuthorize 같은 메서드 수준 보안 어노테이션을 활성화
+// → 컨트롤러, 서비스 등의 메서드에 @PreAuthorize("hasRole('ROLE_ADMIN')") 같은 권한 체크를 사용하려면 필요
 public class SecurityConfig {
 
-    private final JwtTokenProvider jwtTokenProvider;
-    private final CustomUserDetailsService userDetailsService;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-
+  private final JwtTokenProvider jwtTokenProvider;
+  private final CustomUserDetailsService userDetailsService;
+  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+  private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -49,6 +49,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/hospital/login/**").permitAll()
                         .requestMatchers("/api/symptom/names").permitAll()
                         .requestMatchers("/api/symptom/department").permitAll()
+                        .requestMatchers("/api/reservation/**").permitAll()
+                        .requestMatchers("/api/management/**").permitAll()
+                        .requestMatchers("/api/recommend/**").permitAll()
+                        .requestMatchers("/api/hospital/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService), UsernamePasswordAuthenticationFilter.class)
@@ -57,21 +61,22 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 );
 
-        return http.build();
-    }
+
+    return http.build();
+  }
 
 
-    // ✅ 비밀번호 암호화
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+  // ✅ 비밀번호 암호화
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    // ✅ 로그인 시 인증에 사용되는 매니저
-    @Bean
-    public AuthenticationManager authenticationManger(
-        AuthenticationConfiguration configuration) throws Exception{
-        return configuration.getAuthenticationManager();
-    }
+  // ✅ 로그인 시 인증에 사용되는 매니저
+  @Bean
+  public AuthenticationManager authenticationManger(
+      AuthenticationConfiguration configuration) throws Exception {
+    return configuration.getAuthenticationManager();
+  }
 
 }
