@@ -1,0 +1,10 @@
+# .dockerignore
+.gradle/
+build/
+out/
+.DS_Store
+*.log
+.git/
+.gitignore
+.idea/
+.vscode/
