@@ -9,7 +9,7 @@ FROM gradle:8.5-jdk21 AS builder
 WORKDIR /home/gradle/project
 
 # 캐시 효율을 위해 먼저 build.gradle, gradle wrapper, settings.gradle 만 복사
-COPY build.gradle settings.gradle gradle.properties ./
+COPY build.gradle settings.gradle ./
 # (만약 서브모듈 Gradle 파일이 있으면 해당 경로도 추가)
 
 # 소스의 의존성을 미리 받아 빌드 캐싱을 활용
