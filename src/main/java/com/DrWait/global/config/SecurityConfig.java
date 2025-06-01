@@ -33,34 +33,34 @@ public class SecurityConfig {
   private final CustomUserDetailsService userDetailsService;
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
   private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/**") // 선택사항
+                .csrf(csrf -> csrf.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(form -> form.disable())
+                .logout(logout -> logout.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/signup/**").permitAll()
+                        .requestMatchers("/api/auth/login/**").permitAll()
+                        .requestMatchers("/api/auth/hospital/signup/**").permitAll()
+                        .requestMatchers("/api/auth/hospital/login/**").permitAll()
+                        .requestMatchers("/api/symptom/names").permitAll()
+                        .requestMatchers("/api/symptom/department").permitAll()
+                        .requestMatchers("/api/reservation/**").permitAll()
+                        .requestMatchers("/api/management/**").permitAll()
+                        .requestMatchers("/api/recommend/**").permitAll()
+                        .requestMatchers("/api/hospital/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler)
+                );
 
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .securityMatcher("/**") // 선택사항
-        .csrf(csrf -> csrf.disable())
-        .httpBasic(httpBasic -> httpBasic.disable())
-        .formLogin(form -> form.disable())
-        .logout(logout -> logout.disable())
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/signup/**").permitAll()
-            .requestMatchers("/api/auth/login/**").permitAll()
-            .requestMatchers("/api/auth/hospital/signup/**").permitAll()
-            .requestMatchers("/api/auth/hospital/login/**").permitAll()
-            .requestMatchers("/api/reservation/**").permitAll()
-            .requestMatchers("/api/management/**").permitAll()
-            .requestMatchers("/api/recommend/**").permitAll()
-            .requestMatchers("/api/hospital/**").permitAll()
-            .anyRequest().authenticated()
-        )
-        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService),
-            UsernamePasswordAuthenticationFilter.class)
-        .exceptionHandling(ex -> ex
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-            .accessDeniedHandler(jwtAccessDeniedHandler)
-        );
 
     return http.build();
   }
