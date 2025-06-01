@@ -95,6 +95,10 @@ public class JwtTokenProvider {
         return parseClaims(token).getSubject();
     }
 
+    public String getUUID(String token){
+        return parseClaims(token).get("uuid", String.class);
+    }
+
     // ✅ 토큰으로 Authentication 객체를 생성해 반환
     public Authentication getAuthentication(String token){
         log.info("[getAuthentication] 토큰 인증 회원 정보 추출");
