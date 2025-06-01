@@ -1,11 +1,14 @@
 package com.DrWait.domain.reservation.controller;
 
 import com.DrWait.domain.reservation.dto.ReservationManagementResultDto;
+import com.DrWait.domain.user.entity.User;
+import com.DrWait.global.security.auth.service.AuthService;
 import com.DrWait.global.security.token.JwtTokenProvider;
 import com.DrWait.domain.reservation.dto.ReservationManagementDto;
 import com.DrWait.domain.reservation.service.ReservationManagementService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,20 +22,28 @@ public class ReservationManagementController {
 
     private final ReservationManagementService reservationManagementService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
 
     @PatchMapping("/manage")
     public ResponseEntity<ReservationManagementResultDto> manageReservation(
             @RequestBody ReservationManagementDto dto,
             HttpServletRequest request
     ) {
+//        String token = jwtTokenProvider.resolveToken(request);
+//        String hospitalIdStr = jwtTokenProvider.getUUID(token);
+//
+//        UUID hospitalId = UUID.fromString(hospitalIdStr);
+
         String token = jwtTokenProvider.resolveToken(request);
-        String hospitalIdStr = jwtTokenProvider.getUUID(token);
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
-        UUID hospitalId = UUID.fromString(hospitalIdStr);
+        User user = authService.getUserByBearerToken(token);
 
-        reservationManagementService.manageReservation(dto, hospitalId);
+        reservationManagementService.manageReservation(dto, user.getId());
 
-        ReservationManagementResultDto resultDto = reservationManagementService.manageReservation(dto, hospitalId);
+        ReservationManagementResultDto resultDto = reservationManagementService.manageReservation(dto, user.getId());
         return ResponseEntity.ok(resultDto);
     }
 

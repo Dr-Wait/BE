@@ -48,12 +48,11 @@ public class JwtTokenProvider {
 
 
     // ✅ AccessToken 생성
-    public String generateAccessToken(String userId, String role, String userUuid){
+    public String generateAccessToken(String userId, String role){
         log.info("[generateAccessToken] 토큰 생성 시작");
 
         Claims claims = Jwts.claims().setSubject(userId);
         claims.put("role", role);
-        claims.put("uuid", userUuid);
 
         Date now = new Date();
         Date expiry = new Date(now.getTime() + accessTokenValidityInSeconds * 1000);
@@ -70,12 +69,11 @@ public class JwtTokenProvider {
     }
 
     // ✅ RefreshToken 생성
-    public String generateRefreshToken(String userId, String role, String userUuid){
+    public String generateRefreshToken(String userId, String role){
         log.info("[generateRefreshToken] 토큰 생성 시작");
 
         Claims claims = Jwts.claims().setSubject(userId);
         claims.put("role", role);
-        claims.put("uuid", userUuid);
 
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshTokenValidityInSeconds * 1000);

@@ -3,6 +3,8 @@ package com.DrWait.domain.reservation.controller;
 import com.DrWait.domain.reservation.dto.MyReservationDto;
 import com.DrWait.domain.reservation.dto.ReservationResultDto;
 import com.DrWait.domain.reservation.entity.ReservationEntity;
+import com.DrWait.domain.user.entity.User;
+import com.DrWait.global.security.auth.service.AuthService;
 import com.DrWait.global.security.token.JwtTokenProvider;
 import com.DrWait.domain.reservation.dto.ReservationCancelDto;
 import com.DrWait.domain.reservation.dto.ReservationDto;
@@ -23,22 +25,30 @@ public class ReservationController {
 
     private final ReservationService reservationService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
 
     @PostMapping
     public ResponseEntity<ReservationResultDto> makeReservation(
             @RequestBody ReservationDto dto,
             HttpServletRequest request
     ) {
-        String token = jwtTokenProvider.resolveToken(request);
-        String userIdStr = jwtTokenProvider.getUUID(token);
+//        String token = jwtTokenProvider.resolveToken(request);
+//        String userIdStr = jwtTokenProvider.getUUID(token);
+//
+//        if (token == null || !jwtTokenProvider.validateToken(token)) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//
+//        UUID userId = UUID.fromString(userIdStr);
 
+        String token = jwtTokenProvider.resolveToken(request);
         if (token == null || !jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        UUID userId = UUID.fromString(userIdStr);
+        User user = authService.getUserByBearerToken(token);
 
-        ReservationResultDto result = reservationService.makeReservation(dto, userId);
+        ReservationResultDto result = reservationService.makeReservation(dto, user.getId());
 
         return ResponseEntity.ok(result);  // 여기서 waitingOrder, waitingTime 내려감!
     }
