@@ -83,9 +83,13 @@ public class FamilyController {
         Optional<FamilyMember> familyMember = familyMemberService.getMembersByUser(user);
 
         // if not join any group, don't save DB, just send empty value
-        if(familyMember.isEmpty()) return ResponseEntity.ok(new MemberListResponse(new HashSet<FamilyMember>()));
+        if(familyMember.isEmpty()) throw new CustomException(ErrorCode.FAMILY_GROUP_NOT_FOUND);
 
-        if(!familyMember.get().isConfirmed()) throw new CustomException(ErrorCode.NOT_YET_CONFIRM);
+        if(!familyMember.get().isConfirmed()) {
+            HashSet<FamilyMember> justMine = new HashSet<>();
+            justMine.add(familyMember.get());
+            return ResponseEntity.ok(new MemberListResponse(justMine));
+        }
 
         return ResponseEntity.ok(familyGroupService.getGroupMembersByGroupId(familyMember.get().getFamilyGroup().getId()));
     }
