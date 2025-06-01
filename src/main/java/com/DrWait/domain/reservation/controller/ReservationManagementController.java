@@ -1,5 +1,6 @@
 package com.DrWait.domain.reservation.controller;
 
+import com.DrWait.domain.hospital.entity.Hospital;
 import com.DrWait.domain.reservation.dto.ReservationManagementResultDto;
 import com.DrWait.domain.user.entity.User;
 import com.DrWait.global.security.auth.service.AuthService;
@@ -29,31 +30,30 @@ public class ReservationManagementController {
             @RequestBody ReservationManagementDto dto,
             HttpServletRequest request
     ) {
-//        String token = jwtTokenProvider.resolveToken(request);
-//        String hospitalIdStr = jwtTokenProvider.getUUID(token);
-//
-//        UUID hospitalId = UUID.fromString(hospitalIdStr);
+        String token = jwtTokenProvider.resolveToken(request);
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Hospital hospital = authService.getHospitalByBearerToken(token);
+
+        reservationManagementService.manageReservation(dto, hospital.getId());
+
+        ReservationManagementResultDto resultDto = reservationManagementService.manageReservation(dto, hospital.getId());
+        return ResponseEntity.ok(resultDto);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<ReservationManagementResultDto>> getAllReservations(HttpServletRequest request) {
 
         String token = jwtTokenProvider.resolveToken(request);
         if (token == null || !jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        User user = authService.getUserByBearerToken(token);
+        Hospital hospital = authService.getHospitalByBearerToken(token);
 
-        reservationManagementService.manageReservation(dto, user.getId());
-
-        ReservationManagementResultDto resultDto = reservationManagementService.manageReservation(dto, user.getId());
-        return ResponseEntity.ok(resultDto);
-    }
-
-    @GetMapping("/list")
-    public ResponseEntity<List<ReservationManagementResultDto>> getAllReservations(HttpServletRequest request) {
-        String token = jwtTokenProvider.resolveToken(request);
-        String hospitalIdStr = jwtTokenProvider.getUUID(token);
-        UUID hospitalId = UUID.fromString(hospitalIdStr);
-
-        List<ReservationManagementResultDto> results = reservationManagementService.getReservations(hospitalId);
+        List<ReservationManagementResultDto> results = reservationManagementService.getReservations(hospital.getId());
         return ResponseEntity.ok(results);
     }
 }
