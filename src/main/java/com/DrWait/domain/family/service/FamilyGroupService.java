@@ -40,6 +40,11 @@ public class FamilyGroupService {
                 });
     }
 
+    public FamilyGroup getGroupByGroupId(Long groupId){
+        return familyGroupRepository.findById(groupId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FAMILY_GROUP_NOT_FOUND));
+    }
+
     public MemberListResponse getGroupMembersByGroupId(Long groupId){
         FamilyGroup familyGroup = familyGroupRepository.findById(groupId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FAMILY_GROUP_NOT_FOUND));
